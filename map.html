@@ -3,26 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MapABTDongtangnaw</title>
+  <title>Map.ABT.Dongtangnaw</title>
   <link rel="icon" type="image/png" href="icon.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2196f3">
   <style>
-    html, body { height:100%; margin:0; }
-    iframe { width:100%; height:100%; border:0; }
+    body { margin:0; font-family: sans-serif; text-align: center; }
+    select { margin: 12px; padding: 6px; font-size: 16px; }
+    iframe { width: 100%; height: 600px; border: 0; }
   </style>
 </head>
 <body>
-  <iframe src="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F" width="640" height="480"></iframe>
 
+  <h1>เลือกดูแผนที่ (Select a Map)</h1>
+  
+
+  <select id="mapSelect">
+    <option value="1">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)</option>
+    <option value="2">แผนเสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)</option>
+	<option value="3">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
+  </select>
+
+  <!-- iframe สำหรับแสดงแผนที่ -->
+  <iframe id="mapFrame" src=""></iframe>
+
+  <!-- ปุ่มติดตั้งแอป -->
   <button id="installBtn" hidden class="install">ติดตั้งแอป</button>
+
   <script>
+    // ลิงก์แผนที่ของคุณ
+    // ลิงก์แผนที่ของคุณ
+    const maps = {
+      1: "https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F",
+      2: "https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&ehbc=2E312F",
+	  3: "https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&ehbc=2E312F"
+    };
+
+    const sel = document.getElementById('mapSelect');
+    const frame = document.getElementById('mapFrame');
+
+    sel.addEventListener('change', () => {
+      frame.src = maps[sel.value];
+    });
+
+    // ตั้งค่าเริ่มต้น
+    sel.value = "1";
+    frame.src = maps[1];
+
+    // PWA ติดตั้งแอป
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+      window.addEventListener('load', () => 
+        navigator.serviceWorker.register('./sw.js')
+      );
     }
-    let deferredPrompt; const btn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; btn.hidden = false; });
-    btn.addEventListener('click', async () => { btn.hidden = true; if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }});
+
+    let deferredPrompt;
+    const btn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      btn.hidden = false;
+    });
+
+    btn.addEventListener('click', async () => {
+      btn.hidden = true;
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      }
+    });
   </script>
 </body>
 </html>
