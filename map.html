@@ -1,213 +1,65 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Map.ABT.Dongtangnaw</title>
-
-  <!-- PWA / ไอคอน -->
-  <link rel="icon" type="image/png" href="icon.png" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#2196f3" />
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
-
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2196f3">
   <style>
-    :root{
-      --brand:#166534;           
-      --brand-weak: rgba(0,100,0,.75);
-      --text-on-brand:#fff;
-      --card-bg: rgba(255,255,255,.85);
-    }
-
-    /* พื้นหลังทั้งหน้า */
-    body{
-      margin:0;
-      font-family:'Kanit',system-ui, sans-serif;
-      text-align:center;
-      background-image:url('Background.png');
-      background-size:cover;
-      background-position:center;
-      background-attachment:fixed;
-      color:#111;
-    }
-
-    /* แถบหัวข้อ */
-    header{
-      padding:18px 12px 12px;
-    }
-    header h1{
-      margin:0 auto 10px;
-      display:inline-block;
-      padding:10px 20px;
-      font-size:32px;
-      font-weight:700;
-      color:var(--text-on-brand);
-      background:var(--brand-weak);
-      border-radius:10px;
-      text-shadow:2px 2px 4px rgba(0,0,0,.6);
-    }
-
-    /* กล่องเลือกแผนที่ */
-    .picker{
-      display:inline-block;
-      padding:10px 14px;
-      background:var(--card-bg);
-      border-radius:10px;
-      box-shadow:0 4px 16px rgba(0,0,0,.15);
-    }
-    select{
-      appearance:none;
-      padding:10px 14px;
-      font-size:16px;
-      border:0;
-      border-radius:8px;
-      outline:0;
-      background:#fff;
-    }
-
-    /* แผนที่ */
-    #mapFrame{
-      width:100%;
-      height:calc(100vh - 220px); 
-      border:0;
-      display:block;
-      margin:14px 0 0;
-      background:#fff;
-    }
-
-    /* ปุ่มติดตั้งแอป (PWA) */
-    .install{
-      margin:12px;
-      padding:8px 14px;
-      font-size:16px;
-      border:0;
-      border-radius:8px;
-      background:#2196f3;
-      color:#fff;
-      cursor:pointer;
-      box-shadow:0 4px 12px rgba(0,0,0,.15);
-    }
-
-    /* โลโก้มุมขวาบน & ภาพ welcome มุมซ้ายบน */
-    .top-right-icon{
-      position:fixed; top:20px; right:20px;
-      width:170px; height:auto; z-index:9999;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));
-    }
-    .top-left-icon{
-      position:fixed; top:0; left:10px;
-      width:130px; height:auto; z-index:9999;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));
-    }
-
-    @media (max-width: 480px){
-      header h1{ font-size:24px; padding:8px 14px; }
-      .top-left-icon{ width:110px; }
-      .top-right-icon{ width:52px; }
-      #mapFrame{ height:calc(100vh - 200px); }
-    }
-	select{
-	  appearance:none;
-	  padding:10px 14px;
-	  font-size:16px;
-	  border:0;
-	  border-radius:8px;
-	  outline:0;
-	  background:#fff;
-	  font-family:'Kanit', sans-serif;   /* ฟอนต์ในกล่อง */
-	  font-weight:600;                   /* ทำให้ตัวหนาหน่อย */
-	  color:#166534;                     /* ตัวหนังสือเขียว */
-	  box-shadow:0 2px 6px rgba(0,0,0,.15);
-	  cursor:pointer;
-	}
-	html, body {
-	  margin: 0;
-	  padding: 0;
-	  height: 100%;
-	  overflow: hidden;   /* ❌ ห้ามเลื่อน */
-	}
-
-	#mapFrame {
-	  width: 100%;
-	  height: calc(100vh - 260px); /* ปรับสูงตามจอ ลบความสูง header+picker */
-	  border: 0;
-	  display: block;
-	}
-	.install {
-	  position: fixed;
-	  bottom: 20px;
-	  left: 50%;
-	  transform: translateX(-50%);
-	  margin: 0;
-	  padding: 10px 20px;
-	  font-size: 16px;
-	  border: 0;
-	  border-radius: 8px;
-	  background: #2196f3;
-	  color: #fff;
-	  cursor: pointer;
-	  box-shadow: 0 4px 12px rgba(0,0,0,.15);
-	  z-index: 10000;
-	}
+    body { margin:0; font-family: sans-serif; text-align: center; }
+    select { margin: 12px; padding: 6px; font-size: 16px; }
+    iframe { width: 100%; height: 600px; border: 0; }
   </style>
 </head>
 <body>
 
-  <!-- รูป welcome มุมซ้ายบน + โลโก้มุมขวาบน -->
-  <img src="welcome left.png" alt="welcome" class="top-left-icon" />
-  <img src="icon right.png"  alt="icon"    class="top-right-icon" />
-
-  <header>
-    <h1>เลือกดูแผนที่ (Select a Map)</h1>
-  </header>
+  <h1>เลือกดูแผนที่ (Select a Map)</h1>
   
-    <div class="picker">
-      <label for="mapSelect" class="sr-only">เลือกแผนที่</label>
-      <select id="mapSelect">
-        <option value="1">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)</option>
-        <option value="2">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)</option>
-        <option value="3">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
-      </select>
-    </div>
 
-  <!-- แผนที่ -->
-  <iframe id="mapFrame" title="ABT Map"></iframe>
+  <select id="mapSelect">
+    <option value="1">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)</option>
+    <option value="2">แผนเสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)</option>
+	<option value="3">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
+  </select>
 
-  <!-- ปุ่มติดตั้งแอป (จะแสดงอัตโนมัติเมื่อพร้อม) -->
+  <!-- iframe สำหรับแสดงแผนที่ -->
+  <iframe id="mapFrame" src=""></iframe>
+
+  <!-- ปุ่มติดตั้งแอป -->
   <button id="installBtn" hidden class="install">ติดตั้งแอป</button>
 
   <script>
-    /* ลิงก์ Google My Maps (embed) */
+    // ลิงก์แผนที่ของคุณ
+    // ลิงก์แผนที่ของคุณ
     const maps = {
       1: "https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F",
       2: "https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&ehbc=2E312F",
-      3: "https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&ehbc=2E312F"
+	  3: "https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&ehbc=2E312F"
     };
 
-    const sel   = document.getElementById('mapSelect');
+    const sel = document.getElementById('mapSelect');
     const frame = document.getElementById('mapFrame');
 
-    // เมื่อเปลี่ยนเมนู ให้สลับแผนที่
     sel.addEventListener('change', () => {
       frame.src = maps[sel.value];
     });
 
-    // ค่าเริ่มต้น
+    // ตั้งค่าเริ่มต้น
     sel.value = "1";
     frame.src = maps[1];
 
-    // สมัคร service worker (สำหรับ PWA/ออฟไลน์)
+    // PWA ติดตั้งแอป
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js');
-      });
+      window.addEventListener('load', () => 
+        navigator.serviceWorker.register('./sw.js')
+      );
     }
 
-    // ติดตั้งเป็นแอป (Add to Home Screen)
     let deferredPrompt;
     const btn = document.getElementById('installBtn');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
       deferredPrompt = e;
       btn.hidden = false;
