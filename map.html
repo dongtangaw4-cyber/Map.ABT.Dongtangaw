@@ -1,77 +1,201 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Map.ABT.Dongtangnaw</title>
-  <link rel="icon" type="image/png" href="icon.png">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2196f3">
-  <style>
-    body { margin:0; font-family: sans-serif; text-align: center; }
-    select { margin: 12px; padding: 6px; font-size: 16px; }
-    iframe { width: 100%; height: 600px; border: 0; }
-  </style>
-</head>
-<body>
 
-  <h1>เลือกดูแผนที่ (Select a Map)</h1>
+  <!-- ฟอนต์ -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+	
+	<link rel="manifest" href="manifest.json">
+	<meta name="theme-color" content="#2196f3">
+	<script>
+	 if ('serviceWorker' in navigator) {
+		window.addEventListener('load', () => {
+		  navigator.serviceWorker.register('./sw.js');
+		});
+	  }
+	  
+	<button id="installBtn" hidden>ติดตั้งแอป</button>
+	let deferredPrompt;
+	window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('beforeinstallprompt fired');
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('installBtn').hidden = false;
+  });
+  document.getElementById('installBtn').addEventListener('click', async () => {
+    if (!deferredPrompt) { alert('ยังไม่พร้อมติดตั้ง'); return; }
+    document.getElementById('installBtn').hidden = true;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  });
+  window.addEventListener('appinstalled'),
+	</script>
   
-
-  <select id="mapSelect">
-    <option value="1">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)</option>
-    <option value="2">แผนเสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)</option>
-	<option value="3">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
-  </select>
-
-  <!-- iframe สำหรับแสดงแผนที่ -->
-  <iframe id="mapFrame" src=""></iframe>
-
-  <!-- ปุ่มติดตั้งแอป -->
-  <button id="installBtn" hidden class="install">ติดตั้งแอป</button>
-
-  <script>
-    // ลิงก์แผนที่ของคุณ
-    // ลิงก์แผนที่ของคุณ
-    const maps = {
-      1: "https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F",
-      2: "https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&ehbc=2E312F",
-	  3: "https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&ehbc=2E312F"
-    };
-
-    const sel = document.getElementById('mapSelect');
-    const frame = document.getElementById('mapFrame');
-
-    sel.addEventListener('change', () => {
-      frame.src = maps[sel.value];
-    });
-
-    // ตั้งค่าเริ่มต้น
-    sel.value = "1";
-    frame.src = maps[1];
-
-    // PWA ติดตั้งแอป
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => 
-        navigator.serviceWorker.register('./sw.js')
-      );
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: 'Kanit', sans-serif;
     }
 
-    let deferredPrompt;
-    const btn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      btn.hidden = false;
+    body {
+      background: url('Background.png') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(33, 150, 243, 0.88);
+      color: white;
+      padding: 8px;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(3px);
+      box-shadow: 0 1px 6px rgba(0,0,0,.12);
+    }
+
+    select {
+      font: inherit;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      min-width: 240px;
+    }
+
+    #map-container {
+      flex: 1;
+      margin: 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      background: rgba(255,255,255,0.6);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    #installBtn {
+      margin: 10px auto;
+      padding: 8px 16px;
+      font-family: inherit;
+      font-size: 16px;
+      background: #2196f3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: block;
+    }
+
+  // ========================
+  // จัดการปุ่มติดตั้งแอป PWA
+  // ========================
+  let deferredPrompt;
+  const installBtn = document.getElementById('installBtn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.hidden = false;  // แสดงปุ่ม
+  });
+
+  installBtn.addEventListener('click', async () => {
+    installBtn.hidden = true;
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+    }
+  });
+
+</style>
+</head>
+<body>
+  <header>
+    <img src="welcome.png" alt="Welcome" />
+        เลือกดูแผนที่ (Select a Map)
+    <img src="logo.png" alt="Logo" />
+  </header>
+
+  <div class="controls">
+    <label for="mapSelect">แผนที่:</label>
+    <select id="mapSelect">
+      <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
+    </select>
+  </div>
+
+  <!-- ปุ่มติดตั้งแอป -->
+  <button id="installBtn" hidden>ดาวน์โหลดแอป</button>
+
+  <div id="map-container">
+    <iframe id="mapFrame"
+      src="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F"
+      allowfullscreen></iframe>
+  </div>
+
+  <script>
+    // จดจำการเลือกแผนที่
+    const selectEl = document.getElementById('mapSelect');
+    const frameEl  = document.getElementById('mapFrame');
+    const saved = localStorage.getItem('abt_selected_map_value');
+
+    if (saved) {
+      selectEl.value = saved;
+      frameEl.src = saved;
+    }
+
+    selectEl.addEventListener('change', () => {
+      frameEl.src = selectEl.value;
+      localStorage.setItem('abt_selected_map_value', selectEl.value);
     });
 
-    btn.addEventListener('click', async () => {
-      btn.hidden = true;
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-      }
+    // PWA install button
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBtn').hidden = false;
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      document.getElementById('installBtn').hidden = true;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      document.getElementById('installBtn').hidden = true;
     });
   </script>
 </body>
