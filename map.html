@@ -5,172 +5,262 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Map.ABT.Dongtangnaw</title>
 
-  <!-- ฟอนต์ & PWA -->
+  <!-- ฟอนต์ -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#2196f3" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2196f3">
 
   <style>
-    :root{
-      --brand:#166534;
-      --brand-weak:rgba(0,100,0,.85);
-      --card-bg:rgba(255,255,255,.9);
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: 'Kanit', sans-serif;
+      overflow: hidden; /* ไม่ให้สกอลล์ */
     }
 
-    /* ล็อกหน้าให้ไม่เลื่อน */
-    html, body { height:100%; overflow:hidden; }
-
-    /* พื้นหลัง + ตัวอักษร */
-    body{
-      margin:0;
-      font-family:'Kanit',system-ui,sans-serif;
-      background:url('Background.png') no-repeat center/cover fixed;
+    body {
+      background: url('Background.png') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* โครงหลักสูงเต็มจอ */
-    .app{
-      height:100svh;           /* กันแถบบน-ล่างบนมือถือ */
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(33, 150, 243, 0.88);
+      color: white;
+      padding: 8px;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
     }
 
-    /* ส่วนหัว */
-    header{
-      display:flex; align-items:center; justify-content:center; gap:12px;
-      background:var(--brand-weak); color:#fff;
-      padding:10px 8px; font-weight:600; font-size:20px;
-      text-align:center;
-      box-shadow:0 2px 8px rgba(0,0,0,.15);
-    }
-    header img{ height:44px; }
-
-    /* กล่องเลือกแผนที่ */
-    .controls{
-      flex:0 0 auto;
-      display:flex; align-items:center; justify-content:center; gap:10px;
-      padding:10px; margin:10px auto 0;
-      background:var(--card-bg);
-      border-radius:10px;
-      box-shadow:0 4px 14px rgba(0,0,0,.15);
-    }
-    .controls label{ font-weight:600; }
-    .controls select{
-      font:inherit; padding:8px 12px; min-width:260px;
-      border:0; border-radius:8px; outline:0;
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);
-      background:#fff;
+    header img {
+      height: 50px;
     }
 
-    /* พื้นที่แผนที่ (กินพื้นที่ที่เหลือทั้งหมด) */
-    #mapWrap{
-      flex:1 1 auto; min-height:0;   /* สำคัญมากให้ iframe ยืดจริง */
-      display:flex; overflow:hidden; margin:12px;
-      border-radius:12px;
-      background:#fff;
-      box-shadow:0 6px 20px rgba(0,0,0,.2);
-    }
-    #mapFrame{
-      flex:1 1 auto; width:100%; height:100%;
-      border:0; display:block;
+    .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(3px);
+      box-shadow: 0 1px 6px rgba(0,0,0,.12);
     }
 
-    /* ปุ่มติดตั้งแอป */
-    .install{
-      position:absolute; left:50%; transform:translateX(-50%);
-      bottom:12px;
-      padding:9px 16px; font-size:16px;
-      background:#2196f3; color:#fff; border:0; border-radius:8px;
-      box-shadow:0 4px 12px rgba(0,0,0,.2);
-      cursor:pointer;
+    select {
+      font: inherit;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      min-width: 240px;
     }
 
-    @media (max-width:480px){
-      header img{ height:38px; }
-      header{ font-size:18px; }
-      .controls{ margin-top:8px; }
+    #map-container {
+      flex: 1;
+      margin: 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      background: rgba(255,255,255,0.6);
+      display: flex;
     }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    #installBtn {
+      margin: 10px auto;
+      padding: 8px 16px;
+      font-family: inherit;
+      font-size: 16px;
+      background: #2196f3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: block;
+    }
+
+    /* ปุ่มรีเฟรชลอย */
+    .refresh-btn{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      width: 48px; height: 48px;
+      border: 0; border-radius: 50%;
+      background: #2196f3; color: #fff;
+      display: grid; place-items: center;
+      box-shadow: 0 6px 16px rgba(0,0,0,.25);
+      cursor: pointer; z-index: 10000;
+      font-size: 22px;
+    }
+
+    /* แถบสถานะดึงเพื่อรีเฟรช */
+    .ptr-indicator{
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 0; overflow: hidden;
+      display: grid; place-items: center;
+      background: rgba(33,150,243,.9); color: #fff;
+      font-weight: 600; z-index: 10001;
+      transition: height .15s ease;
+    }
+    .ptr-indicator.show{ height: 42px; }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <img src="welcome.png" alt="Welcome">
-      เลือกดูแผนที่ (Select a Map)
-      <img src="logo.png" alt="Logo">
-    </header>
+  <header>
+    <img src="welcome.png" alt="Welcome" />
+    เลือกดูแผนที่ (Select a Map)
+    <img src="logo.png" alt="Logo" />
+  </header>
 
-    <div class="controls">
-      <label for="mapSelect">แผนที่:</label>
-      <select id="mapSelect">
-        <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F">
-          แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)
-        </option>
-        <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&ehbc=2E312F">
-          แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)
-        </option>
-        <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&ehbc=2E312F">
-          แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)
-        </option>
-      </select>
-    </div>
-
-    <div id="mapWrap">
-      <iframe id="mapFrame" title="ABT Map" allowfullscreen></iframe>
-    </div>
-
-    <button id="installBtn" hidden class="install">ติดตั้งแอป</button>
+  <div class="controls">
+    <label for="mapSelect">แผนที่:</label>
+    <select id="mapSelect">
+      <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
+    </select>
   </div>
 
-  <script>
-    /* --------- SW สำหรับ PWA --------- */
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js');
-      });
-    }
+  <div id="map-container">
+    <iframe id="mapFrame"
+      src="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F"
+      allowfullscreen></iframe>
+  </div>
 
-    /* --------- สลับแผนที่ + จำค่าที่เลือก --------- */
+  <div class="ptr-indicator" id="ptrBar">ปล่อยเพื่อรีเฟรช…</div>
+  <button class="refresh-btn" id="refreshBtn" title="รีเฟรช">⟲</button>
+
+  <script>
+    // ===== จัดการการเลือกแผนที่ =====
     const selectEl = document.getElementById('mapSelect');
     const frameEl  = document.getElementById('mapFrame');
     const saved = localStorage.getItem('abt_selected_map_value');
 
-    function setMap(src){
-      frameEl.src = src;
-      localStorage.setItem('abt_selected_map_value', src);
-    }
-
     if (saved) {
       selectEl.value = saved;
       frameEl.src = saved;
-    } else {
-      setMap(selectEl.value);   // ค่าเริ่มต้น
     }
 
-    selectEl.addEventListener('change', () => setMap(selectEl.value));
+    selectEl.addEventListener('change', () => {
+      frameEl.src = selectEl.value;
+      localStorage.setItem('abt_selected_map_value', selectEl.value);
+    });
 
-    /* --------- ปุ่มติดตั้งแอป (A2HS) --------- */
+    // ===== PWA install button =====
     let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.hidden = false;
+      document.getElementById('installBtn').hidden = false;
     });
 
-    installBtn.addEventListener('click', async () => {
-      installBtn.hidden = true;
+    document.getElementById('installBtn').addEventListener('click', async () => {
       if (!deferredPrompt) return;
+      document.getElementById('installBtn').hidden = true;
       deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
+      const { outcome } = await deferredPrompt.userChoice;
       deferredPrompt = null;
     });
 
     window.addEventListener('appinstalled', () => {
       deferredPrompt = null;
-      installBtn.hidden = true;
+      document.getElementById('installBtn').hidden = true;
     });
+
+    // ===== รีเฟรช =====
+    const refreshBtn = document.getElementById('refreshBtn');
+    const ptrBar     = document.getElementById('ptrBar');
+
+    function refreshApp() {
+      frameEl.src = frameEl.src;  // รีเฟรชเฉพาะ iframe
+      // หรือใช้ location.reload(); ถ้าอยากรีโหลดทั้งหน้า
+    }
+
+    refreshBtn.addEventListener('click', refreshApp);
+
+    // ===== Pull-to-Refresh สำหรับมือถือ =====
+    let startY = 0, pulling = false;
+
+    window.addEventListener('touchstart', (e) => {
+      if (document.scrollingElement.scrollTop === 0) {
+        startY = e.touches[0].clientY;
+        pulling = true;
+      }
+    }, {passive:true});
+
+    window.addEventListener('touchmove', (e) => {
+      if (!pulling) return;
+      const dy = e.touches[0].clientY - startY;
+      if (dy > 60) {
+        ptrBar.classList.add('show');
+      } else {
+        ptrBar.classList.remove('show');
+      }
+    }, {passive:true});
+
+    window.addEventListener('touchend', () => {
+      if (!pulling) return;
+      pulling = false;
+      if (ptrBar.classList.contains('show')) {
+        ptrBar.classList.remove('show');
+        refreshApp();
+      }
+    });
+
+    // ถ้าใช้ Service Worker
+    if (navigator.serviceWorker?.controller) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
+    }
   </script>
+
+  <script>
+  // สมัคร SW + ตรวจอัปเดตอัตโนมัติ
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+      const reg = await navigator.serviceWorker.register('./sw.js');
+
+      // เช็กอัปเดตทันทีที่เข้า
+      reg.update();
+
+      // ถ้ามี SW ตัวใหม่มา (updatefound) — แจ้ง/รีโหลดอัตโนมัติ
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker?.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // วิธีที่ 1: รีโหลดทันทีแบบอัตโนมัติ
+            newWorker.postMessage('SKIP_WAITING');
+
+            // เมื่อควบคุมโดย SW ใหม่แล้วจะเกิด controllerchange -> รีโหลดหน้า
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+              location.reload();
+            });
+
+            // วิธีที่ 2 (ถ้าอยากให้ผู้ใช้กดเอง): โชว์ปุ่ม “มีเวอร์ชันใหม่ – กดอัปเดต”
+            // แทนโค้ดด้านบน สร้างปุ่มแล้วกดส่ง SKIP_WAITING เมื่อผู้ใช้ยืนยัน
+          }
+        });
+      });
+
+      // รีเฟรชอัตโนมัติทันทีที่ SW ใหม่เข้าควบคุม
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        location.reload();
+      });
+
+      // อัปเดตเป็นระยะ (เช่น ทุก 15 นาที)
+      setInterval(() => reg.update(), 15 * 60 * 1000);
+    });
+  }
+</script>
 </body>
 </html>
