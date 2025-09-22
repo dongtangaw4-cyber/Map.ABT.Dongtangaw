@@ -30,12 +30,14 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      background: rgba(33, 150, 243, 0.88);
+      background: rgba(0, 100, 0, 0.75);
       color: white;
       padding: 8px;
       font-size: 20px;
       font-weight: 600;
       text-align: center;
+	  backdrop-filter: blue(3px);
+	  border-radius: 8px;
     }
 
     header img {
@@ -49,7 +51,7 @@
       justify-content: center;
       padding: 10px;
       background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(3px);
+      backdrop-filter: white(3px);
       box-shadow: 0 1px 6px rgba(0,0,0,.12);
     }
 
@@ -113,7 +115,7 @@
       font-weight: 600; z-index: 10001;
       transition: height .15s ease;
     }
-    .ptr-indicator.show{ height: 42px; }
+    .ptr-indicator.show{ height: 50px; }
   </style>
 </head>
 <body>
