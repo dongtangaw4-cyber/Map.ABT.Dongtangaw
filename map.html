@@ -2,201 +2,153 @@
 <html lang="th">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Map.ABT.Dongtangnaw</title>
 
-  <!-- ฟอนต์ -->
+  <!-- ฟอนต์ + PWA -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2196f3">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <style>
-    /* กันเลื่อน + กันเด้ง */
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Kanit', sans-serif;
-      overflow: hidden;
-      overscroll-behavior: none;
+    html, body { height:100%; margin:0; font-family:'Kanit', sans-serif; overflow:hidden; }
+
+    body{
       background: url('Background.png') no-repeat center center fixed;
       background-size: cover;
+      display:flex; flex-direction:column;
     }
 
-    .app {
-      height: 100svh;    /* ใช้ svh/dvh กันปัญหาบาร์บน-ล่างมือถือ */
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+    header{
+      display:flex; align-items:center; justify-content:center; gap:12px;
+      background: rgba(0,100,0,.75); color:#fff; padding:8px;
+      font-size:20px; font-weight:600; text-align:center;
+      backdrop-filter: blur(3px); border-radius:8px; margin:8px;
+    }
+    header img{ height:50px; }
+
+    .controls{
+      display:flex; gap:8px; align-items:center; justify-content:center;
+      padding:10px; margin:0 8px 8px;
+      background: rgba(255,255,255,.85); backdrop-filter: blur(3px);
+      box-shadow:0 1px 6px rgba(0,0,0,.12); border-radius:10px;
+    }
+    select{ font:inherit; padding:6px 10px; border-radius:6px; border:1px solid #ccc; min-width:240px; }
+
+    #map-area{ flex:1; margin:8px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.25);
+               background:rgba(255,255,255,.6); overflow:hidden; }
+
+    .map-wrap{ position:relative; width:100%; height:100%; }
+    #mapFrame{ width:100%; height:100%; border:0; }
+
+    /* แผ่นใสครอบปุ่มแชร์ + fullscreen (กดไม่ได้) */
+    .overlay-top-right{
+      position:absolute;
+      top:8px;
+      right:8px;
+      width:120px;      /* ครอบทั้ง 2 ปุ่ม */
+      height:44px;
+      background:transparent;
+      z-index:5;
+      pointer-events:auto;
     }
 
-    header {
-      flex: 0 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      background: rgba(0, 100, 0, 0.75);
-      color: white;
-      padding: 8px;
-      font-size: 20px;
-      font-weight: 600;
-      text-align: center;
-      border-radius: 0 0 8px 8px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,.5);
+    .fab{
+      position:fixed; right:16px; z-index:10000;
+      width:56px; height:56px; border:none; border-radius:50%;
+      display:grid; place-items:center; color:#fff; cursor:pointer;
+      box-shadow:0 8px 18px rgba(0,0,0,.28); font-size:22px;
     }
-    header img { height: 42px; }
-
-    .controls {
-      flex: 0 0 auto;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(3px);
-      box-shadow: 0 1px 6px rgba(0,0,0,.12);
-    }
-    select {
-      font: inherit;
-      padding: 6px 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      min-width: 240px;
-    }
-
-    #mapWrap {
-      flex: 1 1 auto;
-      min-height: 0;
-      display: flex;
-      overflow: hidden;
-      border-radius: 12px 12px 0 0;
-      margin: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-      background: rgba(255,255,255,0.6);
-    }
-    #mapFrame {
-      flex: 1 1 auto;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-
-    /* ปุ่มลอยขวาล่าง */
-    .fab {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      display: flex;
-      gap: 10px;
-      z-index: 9999;
-    }
-    .fab button {
-      width: 48px; height: 48px;
-      border: 0;
-      border-radius: 50%;
-      background: #2196f3;
-      color: #fff;
-      font-size: 22px;
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,.25);
-    }
+    #installBtn{ bottom:88px; background:#0ea5e9; }
+    #refreshBtn{ bottom:20px; background:#22c55e; }
   </style>
 </head>
 <body>
-<div class="app">
+
   <header>
-    <img src="welcome.png" alt="Welcome" />
+    <img src="welcome.png" alt="Welcome">
     เลือกดูแผนที่ (Select a Map)
-    <img src="logo.png" alt="Logo" />
+    <img src="logo.png" alt="Logo">
   </header>
 
   <div class="controls">
     <label for="mapSelect">แผนที่:</label>
     <select id="mapSelect">
-      <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)</option>
-      <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)</option>
-      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&hl=th&ehbc=2E312F">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&hl=th&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&hl=th&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
     </select>
   </div>
 
-  <div id="mapWrap">
-    <iframe id="mapFrame"
-      src="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&ehbc=2E312F"
-      allowfullscreen></iframe>
+  <div id="map-area">
+    <div class="map-wrap">
+      <iframe id="mapFrame"
+        src="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&hl=th&ehbc=2E312F"
+        allowfullscreen></iframe>
+
+      <!-- แผ่นใสปิดปุ่มแชร์ + fullscreen -->
+      <div class="overlay-top-right" title="ปิดการกดปุ่มของ My Maps"></div>
+    </div>
   </div>
-</div>
 
-<!-- ปุ่มลอย -->
-<div class="fab">
-  <button id="installBtn" title="ติดตั้ง">⬇</button>
-  <button id="refreshBtn" title="รีเฟรช">⟲</button>
-</div>
+  <button id="installBtn" class="fab" title="ติดตั้งแอป">⬇</button>
+  <button id="refreshBtn" class="fab" title="รีเฟรช">⟲</button>
 
-<script>
-  // ===== เลือกแผนที่ =====
-  const selectEl = document.getElementById('mapSelect');
-  const frameEl  = document.getElementById('mapFrame');
-  const saved = localStorage.getItem('abt_selected_map_value');
-  if (saved) { selectEl.value = saved; frameEl.src = saved; }
-  selectEl.addEventListener('change', () => {
-    frameEl.src = selectEl.value;
-    localStorage.setItem('abt_selected_map_value', selectEl.value);
-  });
+  <script>
+    const sel = document.getElementById('mapSelect');
+    const frame = document.getElementById('mapFrame');
+    const saved = localStorage.getItem('abt_selected_map_value');
+    if (saved) { sel.value = saved; frame.src = saved; }
+    sel.addEventListener('change', () => {
+      frame.src = sel.value;
+      localStorage.setItem('abt_selected_map_value', sel.value);
+    });
 
-  // ===== ปุ่มรีเฟรช =====
-  document.getElementById('refreshBtn').addEventListener('click', () => {
-    frameEl.src = frameEl.src;
-  });
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      frame.src = frame.src;
+    });
 
-  // ===== PWA ติดตั้งแอป =====
-  const installBtn = document.getElementById('installBtn');
-  let deferredPrompt = null;
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try {
+          const reg = await navigator.serviceWorker.register('./sw.js');
+          reg.update();
+          setInterval(() => reg.update(), 15 * 60 * 1000);
+        } catch(e) { console.warn('SW register failed', e); }
+      });
+    }
 
-  function isStandalone() {
-    return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-  }
-  function updateInstallButton() {
-    installBtn.hidden = isStandalone() || localStorage.getItem('abt_installed') === '1' || !deferredPrompt;
-  }
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    function isStandalone(){
+      return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+             || window.navigator.standalone;
+    }
+    function updateInstallBtn(){
+      installBtn.hidden = isStandalone() || localStorage.getItem('abt_installed')==='1';
+    }
+    updateInstallBtn();
 
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    updateInstallButton();
-  });
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      updateInstallBtn();
+    });
 
-  installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    installBtn.hidden = true;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    updateInstallButton();
-  });
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      installBtn.hidden = true;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+    });
 
-  window.addEventListener('appinstalled', () => {
-    localStorage.setItem('abt_installed', '1');
-    updateInstallButton();
-  });
+    window.addEventListener('appinstalled', () => {
+      localStorage.setItem('abt_installed','1');
+      updateInstallBtn();
+    });
 
-  document.addEventListener('DOMContentLoaded', updateInstallButton);
-
-  // ล็อคแนวตั้ง (บางเบราว์เซอร์ต้อง gesture ก่อน)
-  async function tryLockPortrait() {
-    if (!('orientation' in screen) || !screen.orientation.lock) return;
-    try { await screen.orientation.lock('portrait'); } catch(e) {}
-  }
-  if (isStandalone()) tryLockPortrait();
-  window.addEventListener('click', () => { if (isStandalone()) tryLockPortrait(); }, { once:true });
-</script>
+    navigator.serviceWorker?.addEventListener('controllerchange', () => location.reload());
+  </script>
 </body>
 </html>
