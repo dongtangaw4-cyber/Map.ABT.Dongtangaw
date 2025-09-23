@@ -46,25 +46,53 @@
       position:absolute;
       top:8px;
       right:8px;
-      width:120px;      /* ครอบสองปุ่ม */
-      height:44px;
-      background: rgba(0,0,0,0.1); /* จาง ๆ เพื่อบอกว่ากดไม่ได้ */
+      width:120px; height:44px;
+      background: rgba(0,0,0,0.1);
       border-radius:6px;
       z-index:5;
-      pointer-events:auto; /* รับคลิกแทน iframe */
+      pointer-events:auto;
     }
 
-    /* ปุ่มลอย */
+    /* ปุ่มลอย (FAB) */
     .fab{
       position:fixed; right:16px; z-index:10000;
       width:56px; height:56px; border:none; border-radius:50%;
       display:grid; place-items:center; color:#fff; cursor:pointer;
       box-shadow:0 8px 18px rgba(0,0,0,.28); font-size:22px;
+      transition: transform .25s, box-shadow .25s;
+      overflow:hidden;
     }
-    #installBtn{ bottom:88px; background:#0ea5e9; } /* ติดตั้ง */
-    #refreshBtn{ bottom:20px; background:#22c55e; } /* รีเฟรช */
+    .fab:hover{ transform: scale(1.1); box-shadow:0 10px 20px rgba(0,0,0,.35); }
 
-    /* ปุ่มอัปเดตเวอร์ชัน (แสดงเฉพาะเมื่อมี SW ใหม่) */
+    /* ปุ่มติดตั้ง */
+    #installBtn{ bottom:88px; background: linear-gradient(135deg,#0284c7,#0ea5e9); }
+    #installBtn svg{ width:28px; height:28px; pointer-events:none; }
+    #installBtn::after{
+      content:""; position:absolute; inset:0; border-radius:50%;
+      background: radial-gradient(circle at center, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 60%);
+      transform: scale(0); opacity:0; transition: transform .35s, opacity .35s;
+    }
+    #installBtn:active::after{ transform: scale(1); opacity:1; }
+    #installBtn.pop{ animation: btnPop .35s ease; }
+    @keyframes btnPop{
+      0%{ transform: scale(1); }
+      50%{ transform: scale(1.12); }
+      100%{ transform: scale(1); }
+    }
+
+    /* ปุ่มรีเฟรช */
+    #refreshBtn{ bottom:20px; background: linear-gradient(135deg,#16a34a,#22c55e); }
+    #refreshBtn svg{ width:26px; height:26px; pointer-events:none; }
+    #refreshBtn::after{
+      content:""; position:absolute; inset:0; border-radius:50%;
+      background: radial-gradient(circle at center, rgba(255,255,255,.3) 0%, rgba(255,255,255,0) 60%);
+      transform: scale(0); opacity:0; transition: transform .35s, opacity .35s;
+    }
+    #refreshBtn:active::after{ transform: scale(1); opacity:1; }
+    #refreshBtn.spin svg{ animation: spin 1s linear; }
+    @keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+    /* ปุ่มอัปเดต */
     #updateBtn{
       display:none;
       position:fixed; bottom:160px; right:16px;
@@ -75,51 +103,71 @@
       z-index:10000; cursor:pointer;
     }
 
-    /* ===== Splash / Loading ===== */
+    /* Splash */
     #splash{
       position: fixed; inset: 0;
       display: grid; place-items: center;
-      background: rgba(255,255,255,0.9);   /* ถ้าอยากเขียวอ่อนโปร่ง: rgba(165,214,167,.9) */
+      background: #d0f8ce; /*<สีหน้ารอโหลด>*/
       backdrop-filter: blur(3px);
       z-index: 10050;
       opacity: 1; 
-      transition: opacity .25s ease;
+      transition: opacity .25s ease; 
+	  
     }
     #splash.hide{ opacity: 0; pointer-events: none; }
-
     #splash .splash-logo{
       width: 250px; height: 250px; object-fit: contain; margin-bottom: 12px;
       filter: drop-shadow(0 4px 10px rgba(0,0,0,.2));
       animation: pop .45s ease both;
     }
     #splash .splash-text{
-      margin: 0; font-weight: 600; font-size: 25px; color: #0f5132;
-      text-shadow: 0 1px 0 rgba(255,255,255,.6);
-    }
+      margin: 0; 
+	  font-weight: 600; 
+	  font-size: 25px; 
+	  color: #0d5302;
+      text-shadow: 
+	  -2px -2px 0 #fff;
+       2px -2px 0 #fff;
+	  -2px  2px 0 #fff;
+	   2px  2px 0 #fff;
+	  -2px	0	0 #fff;
+	   2px	0	0 #fff;
+	   0   -2px 0 #fff;
+	   0	2px 0 #fff;
+	   
+    }	
     @keyframes pop{
       from{ transform: scale(.9); opacity:.6 }
       to  { transform: scale(1);  opacity:1 }
     }
-    @media (prefers-reduced-motion: reduce){
-      #splash{ transition: none; }
-      #splash .splash-logo{ animation: none; }
-    }
+	
+#versionTag {     
+	position: fixed;
+	top: 8px;
+	right: 12px;
+	color: white;
+	font-size: 15px;
+	font-weight: bold;
+	text-shadow: 2px 2px 4px rgba (0,0,0,0.8);
+	z-index: 11000;
+	font-family: 'Kanit',sans-serif;
+	}
+	
   </style>
 </head>
 <body>
-
   <header>
     <img src="welcome.png" alt="Welcome">
     เลือกดูแผนที่ (Select a Map)
     <img src="logo.png" alt="Logo">
   </header>
-
+	<div id="versionTag">v1.1.3</div> 
   <div class="controls">
     <label for="mapSelect">แผนที่:</label>
     <select id="mapSelect">
       <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&hl=th&ehbc=2E312F">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict) </option>
       <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&hl=th&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan) </option>
-      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&hl=th&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map) </option>
+      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&hl=th&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
     </select>
   </div>
 
@@ -128,42 +176,53 @@
       <iframe id="mapFrame"
         src="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&hl=th&ehbc=2E312F"
         allowfullscreen></iframe>
-
-      <!-- แผ่นใสปิดปุ่มแชร์ + fullscreen -->
       <div class="overlay-top-right" title="ปิดการกดปุ่มของ My Maps"></div>
     </div>
   </div>
 
-  <!-- ปุ่มลอย: ติดตั้ง + รีเฟรช + อัปเดต -->
-  <button id="installBtn" class="fab" title="ติดตั้งแอป">⬇</button>
-  <button id="refreshBtn" class="fab" title="รีเฟรช">⟲</button>
+  <!-- FAB ปุ่ม -->
+  <button id="installBtn" class="fab" title="ติดตั้งแอป">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+  </button>
+
+  <button id="refreshBtn" class="fab" title="รีเฟรช">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10"/>
+      <polyline points="1 20 1 14 7 14"/>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+    </svg>
+  </button>
+
   <button id="updateBtn">🔄 มีเวอร์ชันใหม่ – กดเพื่ออัปเดต</button>
 
-  <!-- Splash / Loading overlay -->
+  <!-- Splash -->
   <div id="splash" aria-live="polite">
     <img src="logo.png" alt="" class="splash-logo">
     <p class="splash-text">กำลังโหลดแผนที่…</p>
   </div>
 
   <script>
-    /* ===== สลับแผนที่ ===== */
     const sel = document.getElementById('mapSelect');
     const frame = document.getElementById('mapFrame');
     const saved = localStorage.getItem('abt_selected_map_value');
     if (saved) { sel.value = saved; frame.src = saved; }
     sel.addEventListener('change', () => {
-      // แสดง splash ตอนสลับแผนที่
       showSplash('กำลังสลับแผนที่…');
       frame.src = sel.value;
       localStorage.setItem('abt_selected_map_value', sel.value);
-      // รอโหลดเสร็จหรือสูงสุด 2 วิ
       const t = setTimeout(hideSplash, 2000);
       const onLoaded = () => { clearTimeout(t); hideSplash(); frame.removeEventListener('load', onLoaded); };
       frame.addEventListener('load', onLoaded);
     });
 
-    /* ===== รีเฟรช (เฉพาะ iframe) ===== */
     document.getElementById('refreshBtn').addEventListener('click', () => {
+      const btn = document.getElementById('refreshBtn');
+      btn.classList.add('spin');
+      setTimeout(()=>btn.classList.remove('spin'),1000);
       showSplash('กำลังรีเฟรช…');
       frame.src = frame.src;
       const t = setTimeout(hideSplash, 1500);
@@ -171,7 +230,7 @@
       frame.addEventListener('load', onLoaded);
     });
 
-    /* ===== PWA: ติดตั้ง ===== */
+    /* PWA Install */
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
     function isStandalone(){
@@ -189,6 +248,8 @@
       updateInstallBtn();
     });
     installBtn.addEventListener('click', async () => {
+      installBtn.classList.add('pop');
+      setTimeout(()=>installBtn.classList.remove('pop'), 350);
       if (!deferredPrompt) return;
       installBtn.hidden = true;
       deferredPrompt.prompt();
@@ -200,18 +261,15 @@
       updateInstallBtn();
     });
 
-    /* ===== SW: สมัคร + แจ้งเตือนเวอร์ชันใหม่ ===== */
+    /* SW Update */
     const updateBtn = document.getElementById('updateBtn');
     let newWorker;
-
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
           const reg = await navigator.serviceWorker.register('./sw.js');
-          reg.update();                            // เช็กอัปเดตทันที
+          reg.update();
           setInterval(() => reg.update(), 15*60*1000);
-
-          // ถ้ามี SW ใหม่ลง ให้โชว์ปุ่มอัปเดต
           reg.addEventListener('updatefound', () => {
             newWorker = reg.installing;
             newWorker?.addEventListener('statechange', () => {
@@ -220,35 +278,25 @@
               }
             });
           });
-
-          // เมื่อ SW ใหม่เข้าควบคุม -> รีโหลด
           navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
-        } catch (e) {
-          console.warn('SW register failed', e);
-        }
+        } catch (e) { console.warn('SW register failed', e); }
       });
     }
-
-    // กดปุ่มอัปเดต -> ให้ SW ข้าม waiting แล้วรีโหลดเอง
     updateBtn.addEventListener('click', () => {
       if (newWorker) newWorker.postMessage({ action: 'SKIP_WAITING' });
     });
 
-    /* ===== Splash helpers ===== */
+    /* Splash helpers */
     const splash = document.getElementById('splash');
     function showSplash(msg = 'กำลังโหลดแผนที่…') {
       const textEl = splash.querySelector('.splash-text');
       if (textEl) textEl.textContent = msg;
       splash.classList.remove('hide');
     }
-    function hideSplash() {
-      setTimeout(() => splash.classList.add('hide'), 100);
-    }
-
-    // ครั้งแรก: แสดง splash จน iframe โหลด หรือสูงสุด 2 วิ
+    function hideSplash() { setTimeout(() => splash.classList.add('hide'), 100); }
     showSplash();
     const firstTimeout = setTimeout(hideSplash, 2000);
     frame.addEventListener('load', () => { clearTimeout(firstTimeout); hideSplash(); }, { once:true });
-  </script>
+    </script>
 </body>
 </html>
