@@ -61,8 +61,8 @@
       display:grid; place-items:center; color:#fff; cursor:pointer;
       box-shadow:0 8px 18px rgba(0,0,0,.28); font-size:22px;
     }
-    #installBtn{ bottom:88px; background:#0ea5e9; }
-    #refreshBtn{ bottom:20px; background:#22c55e; }
+    #installBtn{ bottom:88px; background:#0ea5e9; } /* ติดตั้ง */
+    #refreshBtn{ bottom:20px; background:#22c55e; } /* รีเฟรช */
 
     /* ปุ่มอัปเดตเวอร์ชัน (แสดงเฉพาะเมื่อมี SW ใหม่) */
     #updateBtn{
@@ -73,6 +73,36 @@
       padding:10px 14px; font-size:16px;
       box-shadow:0 4px 10px rgba(0,0,0,0.25);
       z-index:10000; cursor:pointer;
+    }
+
+    /* ===== Splash / Loading ===== */
+    #splash{
+      position: fixed; inset: 0;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,0.9);   /* ถ้าอยากเขียวอ่อนโปร่ง: rgba(165,214,167,.9) */
+      backdrop-filter: blur(3px);
+      z-index: 10050;
+      opacity: 1; 
+      transition: opacity .25s ease;
+    }
+    #splash.hide{ opacity: 0; pointer-events: none; }
+
+    #splash .splash-logo{
+      width: 96px; height: 96px; object-fit: contain; margin-bottom: 12px;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,.2));
+      animation: pop .45s ease both;
+    }
+    #splash .splash-text{
+      margin: 0; font-weight: 600; font-size: 18px; color: #0f5132;
+      text-shadow: 0 1px 0 rgba(255,255,255,.6);
+    }
+    @keyframes pop{
+      from{ transform: scale(.9); opacity:.6 }
+      to  { transform: scale(1);  opacity:1 }
+    }
+    @media (prefers-reduced-motion: reduce){
+      #splash{ transition: none; }
+      #splash .splash-logo{ animation: none; }
     }
   </style>
 </head>
@@ -87,9 +117,9 @@
   <div class="controls">
     <label for="mapSelect">แผนที่:</label>
     <select id="mapSelect">
-      <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&hl=th&ehbc=2E312F">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict) </option>
-      <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&hl=th&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan) </option>
-      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&hl=th&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map) </option>
+      <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&hl=th&ehbc=2E312F">แผนที่ตำบลดงตะงาว</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&hl=th&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&hl=th&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม</option>
     </select>
   </div>
 
@@ -109,6 +139,12 @@
   <button id="refreshBtn" class="fab" title="รีเฟรช">⟲</button>
   <button id="updateBtn">🔄 มีเวอร์ชันใหม่ – กดเพื่ออัปเดต</button>
 
+  <!-- Splash / Loading overlay -->
+  <div id="splash" aria-live="polite">
+    <img src="logo.png" alt="" class="splash-logo">
+    <p class="splash-text">กำลังโหลดแผนที่…</p>
+  </div>
+
   <script>
     /* ===== สลับแผนที่ ===== */
     const sel = document.getElementById('mapSelect');
@@ -116,13 +152,23 @@
     const saved = localStorage.getItem('abt_selected_map_value');
     if (saved) { sel.value = saved; frame.src = saved; }
     sel.addEventListener('change', () => {
+      // แสดง splash ตอนสลับแผนที่
+      showSplash('กำลังสลับแผนที่…');
       frame.src = sel.value;
       localStorage.setItem('abt_selected_map_value', sel.value);
+      // รอโหลดเสร็จหรือสูงสุด 2 วิ
+      const t = setTimeout(hideSplash, 2000);
+      const onLoaded = () => { clearTimeout(t); hideSplash(); frame.removeEventListener('load', onLoaded); };
+      frame.addEventListener('load', onLoaded);
     });
 
     /* ===== รีเฟรช (เฉพาะ iframe) ===== */
     document.getElementById('refreshBtn').addEventListener('click', () => {
+      showSplash('กำลังรีเฟรช…');
       frame.src = frame.src;
+      const t = setTimeout(hideSplash, 1500);
+      const onLoaded = () => { clearTimeout(t); hideSplash(); frame.removeEventListener('load', onLoaded); };
+      frame.addEventListener('load', onLoaded);
     });
 
     /* ===== PWA: ติดตั้ง ===== */
@@ -185,10 +231,24 @@
 
     // กดปุ่มอัปเดต -> ให้ SW ข้าม waiting แล้วรีโหลดเอง
     updateBtn.addEventListener('click', () => {
-      if (newWorker) {
-        newWorker.postMessage({ action: 'SKIP_WAITING' });
-      }
+      if (newWorker) newWorker.postMessage({ action: 'SKIP_WAITING' });
     });
+
+    /* ===== Splash helpers ===== */
+    const splash = document.getElementById('splash');
+    function showSplash(msg = 'กำลังโหลดแผนที่…') {
+      const textEl = splash.querySelector('.splash-text');
+      if (textEl) textEl.textContent = msg;
+      splash.classList.remove('hide');
+    }
+    function hideSplash() {
+      setTimeout(() => splash.classList.add('hide'), 100);
+    }
+
+    // ครั้งแรก: แสดง splash จน iframe โหลด หรือสูงสุด 2 วิ
+    showSplash();
+    const firstTimeout = setTimeout(hideSplash, 2000);
+    frame.addEventListener('load', () => { clearTimeout(firstTimeout); hideSplash(); }, { once:true });
   </script>
 </body>
 </html>
