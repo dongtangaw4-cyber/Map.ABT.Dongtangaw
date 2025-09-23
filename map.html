@@ -41,18 +41,20 @@
     .map-wrap{ position:relative; width:100%; height:100%; }
     #mapFrame{ width:100%; height:100%; border:0; }
 
-    /* แผ่นใสครอบปุ่มแชร์ + fullscreen (กดไม่ได้) */
+    /* overlay จาง ๆ ครอบปุ่มแชร์ + fullscreen */
     .overlay-top-right{
       position:absolute;
       top:8px;
       right:8px;
-      width:120px;      /* ครอบทั้ง 2 ปุ่ม */
+      width:120px;      /* ครอบสองปุ่ม */
       height:44px;
-      background:transparent;
+      background: rgba(0,0,0,0.1); /* จาง ๆ เพื่อบอกว่ากดไม่ได้ */
+      border-radius:6px;
       z-index:5;
-      pointer-events:auto;
+      pointer-events:auto; /* รับคลิกแทน iframe */
     }
 
+    /* ปุ่มลอย */
     .fab{
       position:fixed; right:16px; z-index:10000;
       width:56px; height:56px; border:none; border-radius:50%;
@@ -61,6 +63,17 @@
     }
     #installBtn{ bottom:88px; background:#0ea5e9; }
     #refreshBtn{ bottom:20px; background:#22c55e; }
+
+    /* ปุ่มอัปเดตเวอร์ชัน (แสดงเฉพาะเมื่อมี SW ใหม่) */
+    #updateBtn{
+      display:none;
+      position:fixed; bottom:160px; right:16px;
+      background:#ff9800; color:#fff;
+      border:none; border-radius:8px;
+      padding:10px 14px; font-size:16px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.25);
+      z-index:10000; cursor:pointer;
+    }
   </style>
 </head>
 <body>
@@ -74,9 +87,9 @@
   <div class="controls">
     <label for="mapSelect">แผนที่:</label>
     <select id="mapSelect">
-      <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&hl=th&ehbc=2E312F">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict)</option>
-      <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&hl=th&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan)</option>
-      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&hl=th&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&hl=th&ehbc=2E312F">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict) </option>
+      <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&hl=th&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan) </option>
+      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&hl=th&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map) </option>
     </select>
   </div>
 
@@ -91,10 +104,13 @@
     </div>
   </div>
 
+  <!-- ปุ่มลอย: ติดตั้ง + รีเฟรช + อัปเดต -->
   <button id="installBtn" class="fab" title="ติดตั้งแอป">⬇</button>
   <button id="refreshBtn" class="fab" title="รีเฟรช">⟲</button>
+  <button id="updateBtn">🔄 มีเวอร์ชันใหม่ – กดเพื่ออัปเดต</button>
 
   <script>
+    /* ===== สลับแผนที่ ===== */
     const sel = document.getElementById('mapSelect');
     const frame = document.getElementById('mapFrame');
     const saved = localStorage.getItem('abt_selected_map_value');
@@ -104,20 +120,12 @@
       localStorage.setItem('abt_selected_map_value', sel.value);
     });
 
+    /* ===== รีเฟรช (เฉพาะ iframe) ===== */
     document.getElementById('refreshBtn').addEventListener('click', () => {
       frame.src = frame.src;
     });
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', async () => {
-        try {
-          const reg = await navigator.serviceWorker.register('./sw.js');
-          reg.update();
-          setInterval(() => reg.update(), 15 * 60 * 1000);
-        } catch(e) { console.warn('SW register failed', e); }
-      });
-    }
-
+    /* ===== PWA: ติดตั้ง ===== */
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
     function isStandalone(){
@@ -134,7 +142,6 @@
       deferredPrompt = e;
       updateInstallBtn();
     });
-
     installBtn.addEventListener('click', async () => {
       if (!deferredPrompt) return;
       installBtn.hidden = true;
@@ -142,13 +149,46 @@
       await deferredPrompt.userChoice;
       deferredPrompt = null;
     });
-
     window.addEventListener('appinstalled', () => {
       localStorage.setItem('abt_installed','1');
       updateInstallBtn();
     });
 
-    navigator.serviceWorker?.addEventListener('controllerchange', () => location.reload());
+    /* ===== SW: สมัคร + แจ้งเตือนเวอร์ชันใหม่ ===== */
+    const updateBtn = document.getElementById('updateBtn');
+    let newWorker;
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try {
+          const reg = await navigator.serviceWorker.register('./sw.js');
+          reg.update();                            // เช็กอัปเดตทันที
+          setInterval(() => reg.update(), 15*60*1000);
+
+          // ถ้ามี SW ใหม่ลง ให้โชว์ปุ่มอัปเดต
+          reg.addEventListener('updatefound', () => {
+            newWorker = reg.installing;
+            newWorker?.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                updateBtn.style.display = 'block';
+              }
+            });
+          });
+
+          // เมื่อ SW ใหม่เข้าควบคุม -> รีโหลด
+          navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
+        } catch (e) {
+          console.warn('SW register failed', e);
+        }
+      });
+    }
+
+    // กดปุ่มอัปเดต -> ให้ SW ข้าม waiting แล้วรีโหลดเอง
+    updateBtn.addEventListener('click', () => {
+      if (newWorker) {
+        newWorker.postMessage({ action: 'SKIP_WAITING' });
+      }
+    });
   </script>
 </body>
 </html>
