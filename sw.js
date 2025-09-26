@@ -1,5 +1,5 @@
 // sw.js
-const VERSION = 'v14';                       // ← เปลี่ยนเลขทุกครั้งที่อัป
+const VERSION = 'v15';                       // ← เปลี่ยนเลขทุกครั้งที่อัป
 const STATIC_CACHE = `abt-static-${VERSION}`;
 
 const STATIC_ASSETS = [
