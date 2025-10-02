@@ -1,5 +1,5 @@
 // sw.js
-const VERSION = 'v17';                       // ← เปลี่ยนเลขทุกครั้งที่อัป
+const VERSION = 'v16';                       // ← เปลี่ยนเลขทุกครั้งที่อัป
 const STATIC_CACHE = `abt-static-${VERSION}`;
 
 const STATIC_ASSETS = [
@@ -67,3 +67,4 @@ self.addEventListener('message', (event) => {
   }
 
 });
+
