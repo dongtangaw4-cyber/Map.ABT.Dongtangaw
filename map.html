@@ -114,13 +114,15 @@
       transition: opacity .25s ease; 
 	  
     }
-    #splash.hide{ opacity: 0; pointer-events: none; }
+    
+	#splash.hide{ opacity: 0; pointer-events: none; }
     #splash .splash-logo{
       width: 250px; height: 250px; object-fit: contain; margin-bottom: 12px;
       filter: drop-shadow(0 4px 10px rgba(0,0,0,.2));
       animation: pop .45s ease both;
     }
-    #splash .splash-text{
+    
+	#splash .splash-text{
       margin: 0; 
 	  font-weight: 600; 
 	  font-size: 25px; 
@@ -153,10 +155,27 @@
 	 font-family: 'Kanit',sans-serif;
 	}
 	
+	#clock {
+	 position: absolute;
+	 top: 3px;
+	 left: 50%;
+	 transform: translateX(-50%);
+	 font-size: 14px;
+	 font-weight: 600;
+	 color: #fff;
+	 z-index: 2000;
+    }
+	
+	header .welcome{
+	 position: relative;
+	 top: -4px;
+	}
+
   </style>
 </head>
 <body>
   <header>
+	<div id="clock"></div>
     <img src="welcome.png" alt="Welcome">
     ยินดีต้อนรับ (Welcome)
     <img src="logo.png" alt="Logo">
@@ -185,7 +204,9 @@
       <div class="overlay-top-right" title="ปิดการกดปุ่มของ My Maps"></div>
     </div>
   </div>
+  
 	<div id="clock"></div>
+
   <!-- FAB ปุ่ม -->
   <button id="installBtn" class="fab" title="ติดตั้งแอป">
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -229,7 +250,7 @@
       const btn = document.getElementById('refreshBtn');
       btn.classList.add('spin');
       setTimeout(()=>btn.classList.remove('spin'),1000);
-      showSplash('กำลังรีเฟรช…');
+	  showSplash('กำลังรีเฟรช…');
       frame.src = frame.src;
       const t = setTimeout(hideSplash, 1500);
       const onLoaded = () => { clearTimeout(t); hideSplash(); frame.removeEventListener('load', onLoaded); };
@@ -305,5 +326,21 @@
     frame.addEventListener('load', () => { clearTimeout(firstTimeout); hideSplash(); }, { once:true });
     </script>
 	
+	<script>
+	function updateClock() {
+	 const now = new Date();
+     const options = { weekday: 'short', day: 'numeric', month: 'short' };
+     const date = now.toLocaleDateString('th-TH', options);
+     
+	 const hh = String(now.getHours()).padStart(2,'0');
+	 const mm = String(now.getMinutes()).padStart(2,'0');
+	 const time = hh + ":" + mm;
+     document.getElementById('clock').textContent = date + " " + time ; 
+	 
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+	
+	</script>		
 </body>
 </html>
