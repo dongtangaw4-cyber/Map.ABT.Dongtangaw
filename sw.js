@@ -1,5 +1,5 @@
 // sw.js
-const VERSION = 'v16';                       // ← เปลี่ยนเลขทุกครั้งที่อัป
+const VERSION = 'v17';                       // ← เปลี่ยนเลขทุกครั้งที่อัป
 const STATIC_CACHE = `abt-static-${VERSION}`;
 
 const STATIC_ASSETS = [
@@ -65,4 +65,15 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.action === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+  
+   function updateclock() {
+	const now = new Date();
+	const options ={wekday:'short' ,day:'numeric' ,month: 'short'}; 
+	const date = now.toLocaleDateString('th-TH',options);
+	const time = now.toLocaleDateString('th-TH' {hour:'2-digit, minute:'2-digit'});
+    document.getElementById('clock').textContent = date+""+time;
+  }
+setlnterval(updateclock, 1000);
+updateclock();
+  
 });
