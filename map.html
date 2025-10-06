@@ -75,8 +75,8 @@
     #installBtn:active::after{ transform: scale(1); opacity:1; }
     #installBtn.pop{ animation: btnPop .35s ease; }
     @keyframes btnPop{
-      0%{ transform: scale(1); }
-      50%{ transform: scale(1.12); }
+      0%{   transform: scale(1); }
+      50%{  transform: scale(1.12); }
       100%{ transform: scale(1); }
     }
 
@@ -129,13 +129,13 @@
 	  color: #006064;
       text-shadow: 
 	  -2px -2px 0 #fff;
-       2px -2px 0 #fff;
+     2px -2px 0 #fff;
 	  -2px  2px 0 #fff;
 	   2px  2px 0 #fff;
-	  -2px	0	0 #fff;
-	   2px	0	0 #fff;
+	  -2px	0	0   #fff;
+	   2px	0	0   #fff;
 	   0   -2px 0 #fff;
-	   0	2px 0 #fff;
+	   0	  2px 0 #fff;
 	   
     }	
     @keyframes pop{
@@ -180,13 +180,13 @@
     ยินดีต้อนรับ (Welcome)
     <img src="logo.png" alt="Logo">
   </header>
-	<div id="versionTag">v1.1.4</div> 
+	<div id="versionTag">v1.1.5</div> 
     <div class="controls">
     <label for="mapSelect">แผนที่:</label>
     <select id="mapSelect">
       <option value="https://www.google.com/maps/d/embed?mid=1rCujO4jFJ2h2wSa_pnlcmrOaQPZNrhM&hl=th&ehbc=2E312F">แผนที่ตำบลดงตะงาว (Map of Dong Ta Ngao Subdistrict) </option>
       <option value="https://www.google.com/maps/d/embed?mid=1zy3WJ1VOzjpWf1gJQ36VGh1TaB9_7L4&hl=th&ehbc=2E312F">แผนที่เสาไฟฟ้าโซล่าเซลล์ (Solar Power Pole Plan) </option>
-      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&hl=th&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map)</option>
+      <option value="https://www.google.com/maps/d/embed?mid=1DS8CSBurVMUU-px6qC-HrWu8Wa5CCj0&hl=th&ehbc=2E312F">แผนที่วิกฤตน้ำท่วม (Flood Crisis Map) </option>
     </select>
 	
 	<a href="คู่มือการใช้งาน Map ABT.pdf" target="_blank"
@@ -327,20 +327,29 @@
     </script>
 	
 	<script>
-	function updateClock() {
-	 const now = new Date();
-     const options = { weekday: 'short', day: 'numeric', month: 'short' };
-     const date = now.toLocaleDateString('th-TH', options);
-     
-	 const hh = String(now.getHours()).padStart(2,'0');
-	 const mm = String(now.getMinutes()).padStart(2,'0');
-	 const time = hh + ":" + mm;
-     document.getElementById('clock').textContent = date + " " + time ; 
-	 
+    function updateClock() {
+     const now = new Date();
+     const dateStr = now.toLocaleDateString('th-TH', {
+     weekday: 'short',
+     day: 'numeric',
+     month: 'short',
+    });
+
+    // เพิ่ม "68" ต่อท้ายเดือน
+    const date = dateStr + " 68";
+
+    // แปลงเวลาเป็น HH:MM:SS
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    const time = `${hh}:${mm}:${ss}`;
+
+    document.getElementById('clock').innerHTML = `${date} ${time}&nbsp;น.`;
     }
+	
     setInterval(updateClock, 1000);
     updateClock();
 	
-	</script>		
+</script>
 </body>
 </html>
