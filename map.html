@@ -12,7 +12,7 @@
 
   <style>
     html, body { height:100%; margin:0; font-family:'Kanit', sans-serif; overflow:hidden; }
-
+	
     body{
       background: url('Backgroundตุลาคม.png') no-repeat center center fixed;
       background-size: cover;
@@ -349,6 +349,20 @@
 	
     setInterval(updateClock, 1000);
     updateClock();
+	
+	window.addEventListener("load", () => {
+	const mapFrame = document.getElementById("mapFrame");
+  
+	// ฟังก์ชันปรับขนาดแผนที่ให้พอดีหน้าจอ
+	function resizeMap() {
+    // ลบพื้นที่เฮดเดอร์กับเมนูด้านบน 
+    // แล้วเหลือพื้นที่เต็มหน้าจอ
+    mapFrame.style.height = (window.innerHeight - 100) + "px";
+  }
+
+  resizeMap(); // เรียกตอนเปิดแอปครั้งแรก
+  window.addEventListener("resize", resizeMap); // เรียกทุกครั้งเมื่อหมุนหรือเปลี่ยนขนาดจอ
+});
 	
 </script>
 </body>
