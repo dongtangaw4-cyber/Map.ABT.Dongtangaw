@@ -171,6 +171,8 @@
 	 top: -4px;
 	}
 
+	updatesHistoryBtn:active { transform: scale(0.95); }
+	
   </style>
 </head>
 <body>
@@ -203,7 +205,7 @@
         allowfullscreen></iframe>
       <div class="overlay-top-right" title="ปิดการกดปุ่มของ My Maps"></div>
     </div>
-  </div>
+ </div>
   
 	<div id="clock"></div>
 
@@ -216,11 +218,29 @@
     </svg>
   </button>
 
+  <!-- ปุ่มดูประวัติอัปเดต (ลิงก์ PDF) -->
+   <a href="updates-history.pdf" target="_blank" 
+	id="updatesHistoryBtn"
+	style="position:fixed; right:16px; bottom:152px;
+      width:56px; height:56px; border:none; border-radius:50%;
+      background:#0284c7; color:#fff; display:grid; place-items:center;
+      box-shadow:0 8px 18px rgba(0,0,0,.28); z-index:10001; cursor:pointer;
+      text-decoration:none;">
+  
+  <svg viewBox="0 0 24 24" width="26" height="26" fill="none"
+       stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+		<line x1="16" y1="2" x2="16" y2="6"></line>
+		<line x1="8" y1="2" x2="8" y2="6"></line>
+		<line x1="3" y1="10" x2="21" y2="10"></line>
+  </svg>
+</a>
+
   <button id="refreshBtn" class="fab" title="รีเฟรช">
     <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="23 4 23 10 17 10"/>
-      <polyline points="1 20 1 14 7 14"/>
-      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+       <polyline points="23 4 23 10 17 10"/>
+       <polyline points="1 20 1 14 7 14"/>
+       <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
     </svg>
   </button>
 
@@ -231,29 +251,28 @@
     <img src="logo.png" alt="" class="splash-logo">
     <p class="splash-text">กำลังโหลดแผนที่…</p>
   </div>
-
-  <script>
-    const sel = document.getElementById('mapSelect');
-    const frame = document.getElementById('mapFrame');
-    const saved = localStorage.getItem('abt_selected_map_value');
-    if (saved) { sel.value = saved; frame.src = saved; }
-    sel.addEventListener('change', () => {
+<script>
+     const sel = document.getElementById('mapSelect');
+     const frame = document.getElementById('mapFrame');
+     const saved = localStorage.getItem('abt_selected_map_value');
+     if (saved) { sel.value = saved; frame.src = saved; }
+      sel.addEventListener('change', () => {
       showSplash('กำลังสลับแผนที่…');
       frame.src = sel.value;
       localStorage.setItem('abt_selected_map_value', sel.value);
-      const t = setTimeout(hideSplash, 2000);
-      const onLoaded = () => { clearTimeout(t); hideSplash(); frame.removeEventListener('load', onLoaded); };
+     const t = setTimeout(hideSplash, 2000);
+     const onLoaded = () => { clearTimeout(t); hideSplash(); frame.removeEventListener('load', onLoaded); };
       frame.addEventListener('load', onLoaded);
     });
 
     document.getElementById('refreshBtn').addEventListener('click', () => {
-      const btn = document.getElementById('refreshBtn');
+     const btn = document.getElementById('refreshBtn');
       btn.classList.add('spin');
       setTimeout(()=>btn.classList.remove('spin'),1000);
 	  showSplash('กำลังรีเฟรช…');
       frame.src = frame.src;
-      const t = setTimeout(hideSplash, 1500);
-      const onLoaded = () => { clearTimeout(t); hideSplash(); frame.removeEventListener('load', onLoaded); };
+     const t = setTimeout(hideSplash, 1500);
+     const onLoaded = () => { clearTimeout(t); hideSplash(); frame.removeEventListener('load', onLoaded); };
       frame.addEventListener('load', onLoaded);
     });
 
@@ -274,7 +293,8 @@
       deferredPrompt = e;
       updateInstallBtn();
     });
-    installBtn.addEventListener('click', async () => {
+    
+	installBtn.addEventListener('click', async () => {
       installBtn.classList.add('pop');
       setTimeout(()=>installBtn.classList.remove('pop'), 350);
       if (!deferredPrompt) return;
@@ -321,12 +341,12 @@
       splash.classList.remove('hide');
     }
     function hideSplash() { setTimeout(() => splash.classList.add('hide'), 100); }
-    showSplash();
-    const firstTimeout = setTimeout(hideSplash, 2000);
-    frame.addEventListener('load', () => { clearTimeout(firstTimeout); hideSplash(); }, { once:true });
-    </script>
+     showSplash();
+     const firstTimeout = setTimeout(hideSplash, 2000);
+     frame.addEventListener('load', () => { clearTimeout(firstTimeout); hideSplash(); }, { once:true });
+</script>
 	
-	<script>
+<script>
     function updateClock() {
      const now = new Date();
      const dateStr = now.toLocaleDateString('th-TH', {
@@ -349,7 +369,216 @@
 	
     setInterval(updateClock, 1000);
     updateClock();
-	
+</script>
+
+	<!-- 🆕 แจ้งอัปเดตวันนี้ + เสียงแจ้งเตือน (เพิ่มอย่างเดียว) -->
+<script>
+	(function(){
+	// โหลด updates.json แล้วแสดงกรอบอัปเดตกลางจอ
+		document.addEventListener("DOMContentLoaded", async () => {
+		try {
+		const res = await fetch("updates.json?ts=" + Date.now(), { cache: "no-store" });
+		const data = await res.json();
+		const today = new Date().toISOString().split("T")[0];
+		const todayUpdate = Array.isArray(data) ? data.find(d => d.date === today) : null;
+
+		if (todayUpdate && todayUpdate.items && todayUpdate.items.length)
+		{
+	 // สร้าง modal
+        const modal = document.createElement("div");
+        modal.id = "dailyUpdateModal";
+        modal.style.cssText = `
+          position:fixed; inset:0;
+          display:flex; align-items:center; justify-content:center;
+          background:rgba(0,0,0,0.5);
+          z-index:100000; /* มากกว่าองค์ประกอบอื่น ๆ */
+        `;
+        modal.innerHTML = `
+          <div style="
+            background:#fff; border-radius:12px;
+            width:90%; max-width:420px; padding:20px 24px;
+            font-family:'Kanit',sans-serif; box-shadow:0 6px 20px rgba(0,0,0,.3);
+            animation:fadeIn .28s ease; position:relative;
+          ">
+            <h2 style="margin:0 0 12px; color:#2196f3;">📅 รายการอัปเดตวันนี้</h2>
+            <ul style="margin:0; padding-left:22px; color:#333; font-size:16px; line-height:1.5;">
+              ${todayUpdate.items.map(it => `<li>${it} </li>`).join("")}</ul>
+            
+			<div style="text-align:center; margin-top:18px;">
+              <button id="closeDailyUpdate" style="
+                background:#2196f3; color:#fff; border:none; border-radius:8px;
+                padding:8px 18px; font-size:16px; cursor:pointer;
+              ">ปิด</button>
+            </div>
+          </div>
+        `;
+
+        // ใส่ keyframes เฉพาะนี้ (ไม่ไปยุ่ง CSS เดิมของคุณ)
+        const fx = document.createElement("style");
+        fx.textContent = `
+          @keyframes fadeIn { from{opacity:0; transform:scale(.92)} to{opacity:1; transform:scale(1)} }
+        `;
+        document.head.appendChild(fx);
+
+        document.body.appendChild(modal);
+
+        // เสียงแจ้งเตือน (พยายามสองทาง: <audio> และ WebAudio เผื่อเบราเซอร์บล็อก)
+        const playBeep = async () => {
+          // วิธี 1: HTMLAudio (base64 เสียงสั้นๆ)
+          try {
+            const el = document.createElement('audio');
+            el.setAttribute('preload', 'auto');
+            el.src =
+              'data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQAAACAAAC4AAAACAAACcQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' +
+              'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQZAADgnAAQAAABAAAACAAACAgACAgICAgICAf//AACAgICA'; // beep เล็กๆ
+            await el.play();
+            return;
+          } catch(e) {
+            // วิธี 2: WebAudio tone 0.15s
+            try {
+              const AudioCtx = window.AudioContext || window.webkitAudioContext;
+              const ctx = new AudioCtx();
+              const o = ctx.createOscillator();
+              const g = ctx.createGain();
+              o.type = 'sine';
+              o.frequency.value = 880; // A5
+              o.connect(g);
+              g.connect(ctx.destination);
+              g.gain.setValueAtTime(0, ctx.currentTime);
+              g.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+              g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
+              o.start();
+              o.stop(ctx.currentTime + 0.16);
+            } catch(_) {
+              // เงียบ ๆ ถ้าโดนบล็อก
+            }
+          }
+        };
+        playBeep();
+
+        // ปุ่มปิด + คลิกพื้นหลัง
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+        modal.querySelector('#closeDailyUpdate').addEventListener('click', () => modal.remove());
+      }
+    } catch (err) {
+      console.warn("โหลด updates.json ไม่ได้หรือรูปแบบไม่ถูกต้อง:", err);
+    }
+     });
+     })()	 
+
+<script>
+	(async function attachUpdatesHistory(){
+	try{
+    const res = await fetch('updates.json', { cache: 'no-store' });
+    const data = await res.json();
+    if(!Array.isArray(data) || data.length === 0) return;
+
+    // องค์ประกอบที่มีอยู่แล้วในหน้า (ใช้ซ้ำ)
+    const historyBtn = document.getElementById('updatesHistoryBtn');
+    const modal      = document.getElementById('updateModal');
+    const list       = document.getElementById('updateList');
+    const closeBtn   = document.getElementById('closeUpdate');
+
+    // เผื่อคุณตั้งหัวข้อไว้ใน H3 แรกของโมดัล
+    const titleEl = modal ? modal.querySelector('h3') : null;
+
+    // 3.1 แสดงปุ่ม 📅 เสมอถ้ามีข้อมูลใน updates.json
+    if(historyBtn){ historyBtn.style.display = 'block'; }
+
+    // 3.2 ฟังก์ชันเรนเดอร์ "ประวัติ 7 วันล่าสุด"
+    function renderRecent(days = 7){
+      if(!modal) return;
+      const today = new Date();
+      const cutoff = new Date(today.getTime() - (days*24*60*60*1000));
+
+      // คัดเฉพาะรายการที่อยู่ในช่วง 7 วัน และเรียงล่าสุดก่อน
+      const recent = data
+        .filter(d => !isNaN(new Date(d.date)) && new Date(d.date) >= cutoff)
+        .sort((a,b) => b.date.localeCompare(a.date));
+
+      // ถ้าไม่มีใน 7 วัน ให้แสดงล่าสุด 5 รายการแทน
+      const showList = recent.length ? recent : data.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+
+      // ใส่หัวข้อ
+      if(titleEl) titleEl.textContent = 'บันทึกอัปเดต (ย้อนหลัง)';
+
+      // เรนเดอร์รายการแบบกลุ่มตามวันที่
+      list.innerHTML = showList.map(d => `
+        <li style="list-style:none; margin:0 0 .5rem 0;">
+          <strong>${d.date}</strong>
+          <ul style="margin:.25rem 0 0 1.25rem;">
+            ${Array.isArray(d.items) ? d.items.map(t => `<li>${t}</li>`).join('') : ''}
+          </ul>
+        </li>
+      `).join('');
+
+      modal.hidden = false;
+    }
+
+    // 3.3 คลิกปุ่ม 📅 เพื่อดูย้อนหลัง
+    if(historyBtn){
+      historyBtn.addEventListener('click', () => renderRecent(7));
+    }
+
+    // 3.4 ให้ปุ่ม "ปิด" และคลิกพื้นหลังปิดกล่องได้ (ใช้ของเดิม)
+    if(closeBtn){
+      closeBtn.addEventListener('click', () => { modal.hidden = true; });
+    }
+    if(modal){
+      modal.addEventListener('click', (e) => {
+        if(e.target === modal) modal.hidden = true;
+      });
+    }
+  }catch(e){
+    console.warn('โหลด updates.json ไม่สำเร็จ:', e);
+  }
+})();
+</script>
+
+<script>
+	// ===== ปุ่มดูประวัติอัปเดต (📅) =====
+(() => {
+	const btn   = document.getElementById('updatesHistoryBtn');
+	if (!btn) return; 
+
+	const modal = document.getElementById('updateModal');
+	const list  = document.getElementById('updateList');
+	const close = document.getElementById('closeUpdate');
+
+  // เปิดประวัติเมื่อกดปุ่ม 📅
+  btn.addEventListener('click', async () => {
+    try {
+      const res = await fetch('updates.json', { cache: 'no-store' });
+      const data = await res.json();
+
+      // เรียงวันที่ใหม่ → ล่าสุดอยู่บนสุด
+      data.sort((a,b) => b.date.localeCompare(a.date));
+
+      // แสดงสรุป 7 วัน/7 รายการล่าสุด (ปรับจำนวนได้)
+      const recent = data.slice(0, 7);
+      list.innerHTML = recent.map(d => `
+        <li>
+          <strong>${d.date}</strong>
+          <ul style="margin:.25rem 0 .75rem 1rem;">
+            ${ (d.items||[]).map(t => `<li>${t}</li>`).join('') }
+          </ul>
+        </li>
+      `).join('');
+
+      modal.hidden = false;   // เปิดกล่อง
+    } catch(e) {
+      list.innerHTML = `<li>ไม่พบไฟล์ updates.json หรืออ่านไม่ได้</li>`;
+      modal.hidden = false;
+      console.warn(e);
+    }
+  });
+
+  // ปิดกล่อง (ปุ่ม/คลิกพื้นหลัง/ปุ่ม ESC)
+  close?.addEventListener('click', () => modal.hidden = true);
+  modal?.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.hidden = true; });
+})();
+</script>
 </script>
 </body>
 </html>
