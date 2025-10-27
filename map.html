@@ -14,14 +14,14 @@
     html, body { height:100%; margin:0; font-family:'Kanit', sans-serif; overflow:hidden; }
 	
     body{
-      background: url('Backgroundตุลาคม.png') no-repeat center center fixed;
+      background: url('Backgroundวันสวรรคต.png') no-repeat center center fixed;
       background-size: cover;
       display:flex; flex-direction:column;
     }
 
     header{ 
       display:flex; align-items:center; justify-content:center; gap:12px;
-      background: #2196F3; color:#fff; padding:8px;
+      background: #000000; color:#fff; padding:8px;
       font-size:20px; font-weight:600; text-align:center;
       backdrop-filter: blur(3px); border-radius:8px; margin:8px;
     }
@@ -65,7 +65,7 @@
     .fab:hover{ transform: scale(1.1); box-shadow:0 10px 20px rgba(0,0,0,.35); }
 
     /* ปุ่มติดตั้ง */
-    #installBtn{ bottom:88px; background: linear-gradient(135deg,#0284c7,#0ea5e9); }
+    #installBtn{ bottom:88px; background: linear-gradient(135deg,#000000); }
     #installBtn svg{ width:28px; height:28px; pointer-events:none; }
     #installBtn::after{
       content:""; position:absolute; inset:0; border-radius:50%;
@@ -81,7 +81,7 @@
     }
 
     /* ปุ่มรีเฟรช */
-    #refreshBtn{ bottom:20px; background: linear-gradient(135deg,#16a34a,#22c55e); }
+    #refreshBtn{ bottom:20px; background: linear-gradient(135deg,#000000); }
     #refreshBtn svg{ width:26px; height:26px; pointer-events:none; }
     #refreshBtn::after{
       content:""; position:absolute; inset:0; border-radius:50%;
@@ -107,7 +107,7 @@
     #splash{
       position: fixed; inset: 0;
       display: grid; place-items: center;
-      background: #b2ebf2; /*<สีหน้ารอโหลด>*/
+      background: #000000; /*<สีหน้ารอโหลด>*/
       backdrop-filter: blur(3px);
       z-index: 10050;
       opacity: 1; 
@@ -126,16 +126,16 @@
       margin: 0; 
 	  font-weight: 600; 
 	  font-size: 25px; 
-	  color: #006064;
+	  color: #fff;
       text-shadow: 
-	  -2px -2px 0 #fff;
-     2px -2px 0 #fff;
-	  -2px  2px 0 #fff;
-	   2px  2px 0 #fff;
-	  -2px	0	0   #fff;
-	   2px	0	0   #fff;
-	   0   -2px 0 #fff;
-	   0	  2px 0 #fff;
+	  -2px -2px 0 #000000;
+       2px -2px 0 #000000;
+	  -2px  2px 0 #000000;
+	   2px  2px 0 #000000;
+	  -2px	0	0 #000000;
+	   2px	0	0 #000000;
+	   0   -2px 0 #000000;
+	   0	2px 0 #000000;
 	   
     }	
     @keyframes pop{
@@ -197,7 +197,7 @@
     </select>
 	
 	<a href="คู่มือการใช้งาน Map ABT.pdf" target="_blank"
-   style="margin-left:10px; padding:6px 12px; Background:#2196f3; color:#fff;
+   style="margin-left:10px; padding:6px 12px; Background:#000000; color:#fff;
    text-decoration:none; border-radius:10px; font-weight:50;">
 	📖คู่มือ
 	</a>
@@ -228,7 +228,7 @@
 	id="updatesHistoryBtn"
 	style="position:fixed; right:16px; bottom:152px;
       width:56px; height:56px; border:none; border-radius:50%;
-      background:#0284c7; color:#fff; display:grid; place-items:center;
+      background:#000000; color:#fff; display:grid; place-items:center;
       box-shadow:0 8px 18px rgba(0,0,0,.28); z-index:10001; cursor:pointer;
       text-decoration:none;">
   
