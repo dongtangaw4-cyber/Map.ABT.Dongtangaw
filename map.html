@@ -14,14 +14,14 @@
     html, body { height:100%; margin:0; font-family:'Kanit', sans-serif; overflow:hidden; }
 	
     body{
-      background: url('Backgroundพฤศจิกายน.png') no-repeat center center fixed;
+      background: url('Backgroundธันวาคม.png') no-repeat center center fixed;
       background-size: cover;
       display:flex; flex-direction:column;
     }
 
     header{ 
       display:flex; align-items:center; justify-content:center; gap:12px;
-      background: #7B68EE; color:#fff; padding:8px;
+      background: #CD5C5C; color:#fff; padding:8px;
       font-size:20px; font-weight:600; text-align:center;
       backdrop-filter: blur(3px); border-radius:8px; margin:8px;
     }
@@ -65,7 +65,7 @@
     .fab:hover{ transform: scale(1.1); box-shadow:0 10px 20px rgba(0,0,0,.35); }
 
     /* ปุ่มติดตั้ง */
-    #installBtn{ bottom:88px; background: linear-gradient(135deg,#7B68EE); }
+    #installBtn{ bottom:88px; background: linear-gradient(135deg,#CD5C5C); }
     #installBtn svg{ width:28px; height:28px; pointer-events:none; }
     #installBtn::after{
       content:""; position:absolute; inset:0; border-radius:50%;
@@ -81,7 +81,7 @@
     }
 
     /* ปุ่มรีเฟรช */
-    #refreshBtn{ bottom:20px; background: linear-gradient(135deg,#7B68EE); }
+    #refreshBtn{ bottom:20px; background: linear-gradient(135deg,#CD5C5C); }
     #refreshBtn svg{ width:26px; height:26px; pointer-events:none; }
     #refreshBtn::after{
       content:""; position:absolute; inset:0; border-radius:50%;
@@ -96,7 +96,7 @@
     #updateBtn{
       display:none;
       position:fixed; bottom:160px; right:16px;
-      background:#7B68EE; color:#fff;
+      background: #CD5C5C; color:#fff;
       border:none; border-radius:8px;
       padding:10px 14px; font-size:16px;
       box-shadow:0 4px 10px rgba(0,0,0,0.25);
@@ -107,7 +107,7 @@
     #splash{
       position: fixed; inset: 0;
       display: grid; place-items: center;
-      background: #9370DB; /*<สีหน้ารอโหลด>*/
+      background: #CD5C5C; /*<สีหน้ารอโหลด>*/
       backdrop-filter: blur(3px);
       z-index: 10050;
       opacity: 1; 
@@ -197,7 +197,7 @@
     </select>
 	
 	<a href="คู่มือการใช้งาน Map ABT.pdf" target="_blank"
-   style="margin-left:10px; padding:6px 12px; Background:#7B68EE; color:#fff;
+   style="margin-left:10px; padding:6px 12px; Background:#CD5C5C; color:#fff;
    text-decoration:none; border-radius:10px; font-weight:50;">
 	📖คู่มือ
 	</a>
@@ -228,7 +228,7 @@
 	id="updatesHistoryBtn"
 	style="position:fixed; right:16px; bottom:152px;
       width:56px; height:56px; border:none; border-radius:50%;
-      background:#7B68EE; color:#fff; display:grid; place-items:center;
+      background:#CD5C5C; color:#fff; display:grid; place-items:center;
       box-shadow:0 8px 18px rgba(0,0,0,.28); z-index:10001; cursor:pointer;
       text-decoration:none;">
   
@@ -405,14 +405,14 @@
             font-family:'Kanit',sans-serif; box-shadow:0 6px 20px rgba(0,0,0,.3);
             animation:fadeIn .28s ease; position:relative;
           ">
-            <h2 style="margin:0 0 12px; color:#2196f3;">รายการอัปเดตวันนี้📣<br> วัน พุธ ที่ 22 ตุลาคม พ.ศ.2568 <br> **ดูย้อนหลังได้ที่ 📅**</h2>
+            <h2 style="margin:0 0 12px; color:#2196f3;">รายการอัปเดตวันนี้📣<br> วัน ศุกร์ ที่ 21 พ.ย. พ.ศ.2568 <br> **ดูย้อนหลังได้ที่ 📅**</h2>
             <ul style="margin:0; padding-left:22px; color:#333; font-size:16px; line-height:1.5;">
               ${todayUpdate.items.map(it => `<li>${it} </li>`).join("")}</ul>
             
 			
 			<div style="text-align:center; margin-top:18px;">
               <button id="closeDailyUpdate" style="
-                background:#2196f3; color:#fff; border:none; border-radius:8px;
+                background:#CD5C5C; color:#fff; border:none; border-radius:8px;
                 padding:8px 18px; font-size:16px; cursor:pointer;
               ">ปิด</button>
             </div>
